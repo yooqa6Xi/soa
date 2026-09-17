@@ -6,6 +6,7 @@
     "Sniper685298",
     "LEYENDAG_7",
     "Xxxtentacion2p",
-    "denterexxt7778"
+    "denterexxt7778",
+    "Its_Cortez"
   ]
 }
