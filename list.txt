@@ -1,0 +1,11 @@
+{
+  "usernames": [
+    "redeyesdarkninja2012",
+    "bluewolf2015",
+    "runeslayernoob1234",
+    "Sniper685298",
+    "LEYENDAG_7",
+    "Xxxtentacion2p",
+    "denterexxt7778"
+  ]
+}
