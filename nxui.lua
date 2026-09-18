@@ -234,6 +234,20 @@ function library:new(props)
 		}
 	)
 	--
+	utility.new(
+		"ImageLabel",
+		{
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://2181804340",
+			ImageTransparency = 0.9,
+			ScaleType = Enum.ScaleType.Crop,
+			Size = UDim2.new(1,0,1,0),
+			Position = UDim2.new(0,0,0,0),
+			ZIndex = 0,
+			Parent = outline3
+		}
+	)
+	--
 	local titletext = utility.new(
 		"TextLabel",
 		{
