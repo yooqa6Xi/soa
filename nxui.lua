@@ -981,9 +981,9 @@ function library:page(props)
 			Position = UDim2.new(0,0,0,0),
 			AutomaticCanvasSize = "Y",
 			CanvasSize = UDim2.new(0,0,0,0),
-			ScrollBarImageTransparency = 0.35,
-			ScrollBarImageColor3 = Color3.fromRGB(90, 90, 90),
-			ScrollBarThickness = 3,
+			ScrollBarImageTransparency = 0,
+			ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
+			ScrollBarThickness = 4,
 			ClipsDescendants = true,
 			VerticalScrollBarInset = "ScrollBar",
 			VerticalScrollBarPosition = "Right",
@@ -1010,9 +1010,9 @@ function library:page(props)
 			Position = UDim2.new(1,0,0,0),
 			AutomaticCanvasSize = "Y",
 			CanvasSize = UDim2.new(0,0,0,0),
-			ScrollBarImageTransparency = 0.35,
-			ScrollBarImageColor3 = Color3.fromRGB(90, 90, 90),
-			ScrollBarThickness = 3,
+			ScrollBarImageTransparency = 0,
+			ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
+			ScrollBarThickness = 4,
 			ClipsDescendants = true,
 			VerticalScrollBarInset = "ScrollBar",
 			VerticalScrollBarPosition = "Right",
@@ -1152,21 +1152,14 @@ function pages:section(props)
 	table.insert(self.library.themeitems["accent"]["BackgroundColor3"],color)
 	--
 	local content = utility.new(
-		"ScrollingFrame",
+		"Frame",
 		{
 			AnchorPoint = Vector2.new(0.5,1),
 			BackgroundTransparency = 1,
 			BorderSizePixel = 0,
 			Size = UDim2.new(1,-12,1,-25),
 			Position = UDim2.new(0.5,0,1,-5),
-			AutomaticCanvasSize = "Y",
-			CanvasSize = UDim2.new(0,0,0,0),
-			ScrollBarImageTransparency = 0.4,
-			ScrollBarImageColor3 = Color3.fromRGB(90, 90, 90),
-			ScrollBarThickness = 2,
-			ClipsDescendants = true,
-			VerticalScrollBarInset = "ScrollBar",
-			VerticalScrollBarPosition = "Right",
+			ClipsDescendants = false,
 			Parent = outline
 		}
 	)
