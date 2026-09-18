@@ -2069,7 +2069,7 @@ function sections:dropdown(props)
 	-- // properties
 	local name = props.name or props.Name or props.page or props.Page or props.pagename or props.Pagename or props.PageName or props.pageName or "new ui"
 	local def = props.def or props.Def or props.default or props.Default or ""
-	local max = props.max or props.Max or props.maximum or props.Maximum or 4
+	local max = props.max or props.Max or props.maximum or props.Maximum or 12
 	local options = props.options or props.Options or props.Settings or props.settings or {}
 	local callback = props.callback or props.callBack or props.CallBack or props.Callback or function()end
 	-- // variables
@@ -2205,13 +2205,16 @@ function sections:dropdown(props)
 			Size = UDim2.new(1,0,0,20),
 			Position = UDim2.new(0,0,0,34),
 			Visible = false,
+			ZIndex = 50,
 			Parent = dropdownholder
 		}
 	)
 	--
-	local size = #options
-	--
-	size = math.clamp(size,1,max)
+	-- max = max visible rows; list scrolls for more options
+	max = math.clamp(tonumber(max) or 8, 1, 30)
+	local visibleRows = math.clamp(#options, 1, max)
+	local listHeight = (18 * visibleRows) + 4
+	optionsholder.Size = UDim2.new(1, 0, 0, listHeight)
 	--
 	local optionsoutline = utility.new(
 		"ScrollingFrame",
@@ -2220,16 +2223,17 @@ function sections:dropdown(props)
 			BorderColor3 = Color3.fromRGB(56, 56, 56),
 			BorderMode = "Inset",
 			BorderSizePixel = 1,
-			Size = UDim2.new(1,0,size,2),
+			Size = UDim2.new(1,0,1,0),
 			Position = UDim2.new(0,0,0,0),
 			ClipsDescendants = true,
-			CanvasSize = UDim2.new(0,0,0,18*#options),
-			ScrollBarImageTransparency = 0.25,
-			ScrollBarImageColor3 = Color3.fromRGB(0,0,0),
-			ScrollBarThickness = 5,
+			CanvasSize = UDim2.new(0,0,0,18*math.max(#options,1)),
+			AutomaticCanvasSize = Enum.AutomaticSize.None,
+			ScrollBarImageTransparency = 0,
+			ScrollBarImageColor3 = Color3.fromRGB(255,255,255),
+			ScrollBarThickness = 4,
 			VerticalScrollBarInset = "ScrollBar",
 			VerticalScrollBarPosition = "Right",
-			ZIndex = 5,
+			ZIndex = 51,
 			Parent = optionsholder
 		}
 	)
@@ -2245,12 +2249,15 @@ function sections:dropdown(props)
 	dropdown = {
 		["library"] = self.library,
 		["optionsholder"] = optionsholder,
+		["optionsoutline"] = optionsoutline,
 		["indicator"] = indicator,
 		["options"] = options,
+		["max"] = max,
 		["title"] = title,
 		["value"] = value,
 		["open"] = false,
 		["titles"] = {},
+		["buttons"] = {},
 		["current"] = def,
 		["callback"] = callback
 	}
@@ -2292,6 +2299,7 @@ function sections:dropdown(props)
 		self.library.labels[#self.library.labels+1] = ddoptiontitle
 		--
 		table.insert(dropdown.titles,ddoptiontitle)
+		table.insert(dropdown.buttons,ddoptionbutton)
 		--
 		if v == dropdown.current then ddoptiontitle.TextColor3 = self.library.theme.accent end
 		--
@@ -2586,6 +2594,93 @@ function sections:buttonbox(props)
 	-- // metatable indexing + return
 	setmetatable(buttonbox, buttonboxs)
 	return buttonbox
+end
+--
+
+function dropdowns:Refresh(newOptions)
+	local dropdown = self
+	newOptions = newOptions or {}
+	dropdown.options = newOptions
+
+	for _, b in pairs(dropdown.buttons or {}) do
+		pcall(function() b:Destroy() end)
+	end
+	dropdown.buttons = {}
+	dropdown.titles = {}
+
+	local max = dropdown.max or 12
+	max = math.clamp(tonumber(max) or 12, 1, 30)
+	local visibleRows = math.clamp(#newOptions, 1, max)
+	local listHeight = (18 * visibleRows) + 4
+	if dropdown.optionsholder then
+		dropdown.optionsholder.Size = UDim2.new(1, 0, 0, listHeight)
+	end
+	if dropdown.optionsoutline then
+		dropdown.optionsoutline.CanvasSize = UDim2.new(0, 0, 0, 18 * math.max(#newOptions, 1))
+	end
+
+	local parent = dropdown.optionsoutline
+	if not parent then return end
+
+	for _, v in pairs(newOptions) do
+		local ddoptionbutton = utility.new(
+			"TextButton",
+			{
+				AnchorPoint = Vector2.new(0,0),
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1,0,0,18),
+				Text = "",
+				ZIndex = 6,
+				Parent = parent
+			}
+		)
+		local ddoptiontitle = utility.new(
+			"TextLabel",
+			{
+				AnchorPoint = Vector2.new(0.5,0),
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1,-10,1,0),
+				Position = UDim2.new(0.5,0,0,0),
+				Font = dropdown.library.font,
+				Text = v,
+				TextColor3 = Color3.fromRGB(255,255,255),
+				TextSize = dropdown.library.textsize,
+				TextStrokeTransparency = 0,
+				TextXAlignment = "Left",
+				ClipsDescendants = true,
+				ZIndex = 6,
+				Parent = ddoptionbutton
+			}
+		)
+		table.insert(dropdown.titles, ddoptiontitle)
+		table.insert(dropdown.buttons, ddoptionbutton)
+		if v == dropdown.current then
+			ddoptiontitle.TextColor3 = dropdown.library.theme.accent
+		end
+		ddoptionbutton.MouseButton1Down:Connect(function()
+			dropdown.optionsholder.Visible = false
+			dropdown.open = false
+			dropdown.indicator.Text = "+"
+			for _, x in pairs(dropdown.titles) do
+				x.TextColor3 = Color3.fromRGB(255,255,255)
+			end
+			dropdown.current = v
+			dropdown.value.Text = v
+			ddoptiontitle.TextColor3 = dropdown.library.theme.accent
+			dropdown.callback(v)
+		end)
+	end
+
+	local still = false
+	for _, v in pairs(newOptions) do
+		if v == dropdown.current then still = true break end
+	end
+	if not still and #newOptions > 0 then
+		dropdown.current = newOptions[1]
+		dropdown.value.Text = newOptions[1]
+	elseif #newOptions == 0 then
+		dropdown.value.Text = ""
+	end
 end
 --
 function dropdowns:set(value)
@@ -4718,10 +4813,19 @@ function library:panel(props)
 
 	function panel:set(text)
 		body.Text = text or ""
-		local bounds = body.TextBounds
-		local h = math.max(28, bounds.Y + 28)
-		local w = math.max(width, bounds.X + 20)
-		outline.Size = UDim2.new(0, w, 0, h)
+		task.defer(function()
+			local bounds = body.TextBounds
+			local h = math.max(28, (bounds and bounds.Y or 0) + 28)
+			local w = math.max(width, (bounds and bounds.X or 0) + 20)
+			-- multi-line height estimate
+			local lines = 1
+			for _ in string.gmatch(body.Text, "
+") do
+				lines = lines + 1
+			end
+			h = math.max(h, 18 + lines * (self.library.textsize + 4))
+			outline.Size = UDim2.new(0, w, 0, h)
+		end)
 	end
 
 	function panel:setlines(lines)
