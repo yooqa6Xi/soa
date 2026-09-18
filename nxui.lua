@@ -4817,10 +4817,8 @@ function library:panel(props)
 			local bounds = body.TextBounds
 			local h = math.max(28, (bounds and bounds.Y or 0) + 28)
 			local w = math.max(width, (bounds and bounds.X or 0) + 20)
-			-- multi-line height estimate
 			local lines = 1
-			for _ in string.gmatch(body.Text, "
-") do
+			for _ in string.gmatch(body.Text, "\n") do
 				lines = lines + 1
 			end
 			h = math.max(h, 18 + lines * (self.library.textsize + 4))
